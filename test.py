@@ -7,28 +7,35 @@ def background_color(image):
     return unique_array[counts.argmax()]
 
 
-def skeleton(image):
+def skeletonize(image):
     done = False
-    (h, w) = image.shape
-    background = background_color(image)
+    skeleton = image.copy()
+    (h, w) = skeleton.shape
+    background = background_color(skeleton)
     not_background = 255-background
     while not(done):
         done = True
         for x in range(h):
             for y in range(w):
-                if image[x, y] == background:
+                if skeleton[x, y] == background:
                     pass
                 else:
-                    if x > 0:
-                        t = image[x-1, y]
-                    elif x < h-1:
-                        b = image[x+1, y]
-                    if y > 0:
-                        l = image[x, y-1]
-                    elif y < w-1:
-                        r = image[x, y+1]
-                    if not(r == l and r == not_background):
-                        image[x, y] = background
+                    r = l = t = b = -1
+                    if x in range(1, h):
+                        t = skeleton[x-1, y]
+                        b = skeleton[x+1, y]
+                    if y in range(1, w):
+                        l = skeleton[x, y-1]
+                        r = skeleton[x, y+1]
+                    if r == l and t == b and r == t:
+                        skeleton[x, y] = background
+                    if r == l and r == background:
+                        continue
+                    if t == b and t == background:
+                        continue
+                    print((r, l, t, b))
+                    skeleton[x, y] = background
+    return skeleton
 
 
 def custom_threshold(image, cutoff):
@@ -55,8 +62,9 @@ def process_image(image):
     maze = cv2.cvtColor(maze, cv2.COLOR_BGR2GRAY)
     threshold = custom_threshold(maze, 100)
     cv2.imshow("main", threshold)
-    skeleton = skeleton(threshold)
+    skeleton = skeletonize(threshold)
     cv2.imshow("skel", skeleton)
+    cv2.imwrite("skel.png", skeleton)
     cv2.waitKey(0)
 
 
