@@ -18,7 +18,7 @@ def skeletonize(image):
         for x in range(h):
             for y in range(w):
                 if skeleton[x, y] == background:
-                    pass
+                    continue
                 else:
                     r = l = t = b = -1
                     if x in range(1, h-1):
@@ -27,7 +27,6 @@ def skeletonize(image):
                     if y in range(1, w-1):
                         l = skeleton[x, y-1]
                         r = skeleton[x, y+1]
-
                     if r == l and r == background:
                         if t == b and r == t:
                             skeleton[x, y] = background
@@ -35,6 +34,17 @@ def skeletonize(image):
                             continue
                     elif t == b and t == background:
                         continue
+                    elif r == t and r == background:
+                        continue
+                    elif l == t and l == background:
+                        continue
+                    elif r == b and r == background:
+                        continue
+                    elif l == b and l == background:
+                        continue
+                    elif skeleton[x-1, y-1] == background and skeleton[x+1, y-1] == background:
+                        if skeleton[x+1, y+1] == background and skeleton[x-1, y+1] == background:
+                            continue
                     skeleton[x, y] = background
                     done = False
     return skeleton
@@ -77,3 +87,13 @@ def process_image(image):
 
 image = cv2.imread("maze.png")
 process_image(image)
+
+"""
+                    if r == l and r == background:
+                        if t == b and r == t:
+                            skeleton[x, y] = background
+                        else:
+                            continue
+                    elif t == b and t == background:
+                        continue
+"""
