@@ -34,17 +34,6 @@ def skeletonize(image):
                             continue
                     elif t == b and t == background:
                         continue
-                    elif r == t and r == background:
-                        continue
-                    elif l == t and l == background:
-                        continue
-                    elif r == b and r == background:
-                        continue
-                    elif l == b and l == background:
-                        continue
-                    elif skeleton[x-1, y-1] == background and skeleton[x+1, y-1] == background:
-                        if skeleton[x+1, y+1] == background and skeleton[x-1, y+1] == background:
-                            continue
                     skeleton[x, y] = background
                     done = False
     return skeleton
@@ -74,8 +63,8 @@ def process_image(image):
     maze = cv2.cvtColor(maze, cv2.COLOR_BGR2GRAY)
     threshold = custom_threshold(maze, 100)
 
-    element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
-    threshold = cv2.dilate(threshold, element)
+    # element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+    # threshold = cv2.dilate(threshold, element)
 
     cv2.imshow("main", threshold)
     cv2.imwrite("thresh.png", threshold)
@@ -87,13 +76,3 @@ def process_image(image):
 
 image = cv2.imread("maze.png")
 process_image(image)
-
-"""
-                    if r == l and r == background:
-                        if t == b and r == t:
-                            skeleton[x, y] = background
-                        else:
-                            continue
-                    elif t == b and t == background:
-                        continue
-"""
