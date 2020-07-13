@@ -1,7 +1,11 @@
+import cv2
+
+
 class Graph:
-    v = 0
-    adj = [[]]
-    vertices = [()]
+    def __init__(self):
+        self.v = 0
+        self.adj = [[]]
+        self.vertices = [()]
 
     def add_vertex(self, x, y):
         self.v += 1
@@ -23,3 +27,8 @@ class Graph:
 
     def vertices(self):
         return self.v
+
+    def draw_graph(self, img):
+        for x, y in self.vertices:
+            img = cv2.circle(img, (y, x), radius=0,
+                             color=(255, 245, 135), thickness=-1)

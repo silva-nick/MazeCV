@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 import skeletonize
+import graph
 
 
 def background_color(image):
