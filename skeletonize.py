@@ -33,6 +33,37 @@ def skeletonize(image):
     return skeleton
 
 
+def reverse_skeleton(image):
+    done = False
+    skeleton = image.copy()
+    (h, w) = skeleton.shape
+    background = 0
+    while not(done):
+        done = True
+        for x in range(h):
+            for y in range(w):
+                if skeleton[x, y] == background:
+                    continue
+                else:
+                    r = l = t = b = -1
+                    if x in range(1, h-1):
+                        t = skeleton[x-1, y]
+                        b = skeleton[x+1, y]
+                    if y in range(1, w-1):
+                        l = skeleton[x, y-1]
+                        r = skeleton[x, y+1]
+                    if r == l and r == background:
+                        if t == b and r == t:
+                            skeleton[x, y] = background
+                        else:
+                            continue
+                    elif t == b and t == background:
+                        continue
+                    skeleton[x, y] = background
+                    done = False
+    return skeleton
+
+
 def zhang_suen(img):
 
     def neighbors(x, y, img):

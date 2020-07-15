@@ -25,12 +25,13 @@ class Graph:
     def adj(self, v):
         return adj[v]
 
-    def vertices(self):
+    def V(self):
         return self.v
 
     def draw_graph(self, img):
         for v in self.vertices:
             x, y = v
-            img = cv2.circle(img, (y, x), radius=3,
+            img = cv2.circle(img, (x, y), radius=3,
                              color=(255, 245, 135), thickness=-1)
+
         return img
