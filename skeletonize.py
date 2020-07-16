@@ -86,8 +86,8 @@ def zhang_suen(img):
                     n = neighbors(x, y, copy)
                     if (2 <= sum(n)//255 <= 6 and
                         has_transitions(n) and
-                        n[2]*n[4]*n[6] == 0 and
-                            n[0]*n[2]*n[4] == 0):
+                        n[2]+n[4]+n[6] > 0 and
+                            n[0]+n[2]+n[4] > 0):
                         remove.append((x, y))
         for x, y in remove:
             copy.itemset((y, x), 255)
@@ -99,8 +99,8 @@ def zhang_suen(img):
                     n = neighbors(x, y, copy)
                     if (2 <= sum(n)//255 <= 6 and
                         has_transitions(n) and
-                        n[0]*n[4]*n[6] == 0 and
-                            n[0]*n[2]*n[6] == 0):
+                        n[0]+n[4]+n[6] > 0 and
+                            n[0]+n[2]+n[6] > 0):
                         remove2.append((x, y))
         for x, y in remove2:
             copy.itemset((y, x), 255)

@@ -12,7 +12,7 @@ def background_color(image):
 
 
 def morph(image):
-    elem = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    elem = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
     cropped = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
     eroded = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
     other = image.copy()
@@ -26,7 +26,7 @@ def morph(image):
             break
         last_image = eroded.copy()
 
-    return cropped
+    return cv2.erode(other, elem, iterations=5)
 
 
 def maze_path(image):
@@ -43,6 +43,7 @@ def process_image(image):
     if background_color(maze) == 0:
         maze = cv2.bitwise_not(maze)
     t, threshold = cv2.threshold(maze, 225, 255, cv2.THRESH_BINARY)
+    cv2.imshow("threshold", threshold)
 
     path = maze_path(threshold.copy())
     cv2.imshow("path", path)
@@ -50,11 +51,11 @@ def process_image(image):
     skel = skeletonize.zhang_suen(threshold)
     #skel = skeletonize.skeletonize(path)
     cv2.imshow("skeletonized", skel)
-    return skel
+    return path
 
 
 def make_graph(image):
-    corners = cv2.goodFeaturesToTrack(image, 0, .05, 15)
+    corners = cv2.goodFeaturesToTrack(image, 0, .05, 10)
     term = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_COUNT, 30, 0.1)
     cv2.cornerSubPix(image, corners, (5, 5), (-1, -1), term)
     g = graph.Graph()
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     img1 = cv2.imread('color_maze.png', 0)
     img2 = cv2.imread('tc_maze.png', 0)
 
-    final_image = process_image(img0)
+    final_image = process_image(img2)
     graph = make_graph(final_image)
     color = cv2.cvtColor(final_image, cv2.COLOR_GRAY2RGB)
     graph_img = graph.draw_graph(color)
