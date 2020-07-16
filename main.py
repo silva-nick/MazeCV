@@ -15,17 +15,18 @@ def morph(image):
     elem = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     cropped = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
     eroded = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
+    other = image.copy()
     while(True):
         eroded = cv2.erode(image, elem)
         temp = cv2.dilate(eroded, elem)
         temp = cv2.subtract(image, temp)
         cropped = cv2.bitwise_or(cropped, temp)
         image = eroded.copy()
-        if cv2.countNonZero(image) < np.size(image)//2:
+        if cv2.countNonZero(image) == 0:
             break
         last_image = eroded.copy()
 
-    return image
+    return cropped
 
 
 def maze_path(image):
