@@ -41,6 +41,6 @@ class Graph:
                              color=(255, 245, 135), thickness=-1)
             for a in self.adj(self.vertices.index(v)):
                 if a:
-                    cv2.line(img, a, v, (153, 192, 255), 2)
+                    img = cv2.line(img, a, v, (153, 192, 255), 2)
 
         return img

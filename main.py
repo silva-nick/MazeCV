@@ -77,7 +77,7 @@ def find_edges(image, graph):
             end_max = max(vertex[0], vertex[1])
             end = vertex
 
-    image = cv2.circle(image, (start[0], start[1]+10), radius=3,
+    image = cv2.circle(image, (start[0], start[1]), radius=3,
                        color=(252, 71, 71), thickness=-1)
     image = cv2.circle(image, (end[0], end[1]), radius=3,
                        color=(252, 71, 71), thickness=-1)
@@ -110,6 +110,7 @@ if __name__ == "__main__":
     cv2.imshow("graph", graph_img)
 
     start, end = find_edges(final_image, graph)
+    cv2.imshow("!", graph_img)
     #search = bfs.bfs(graph, start)
     #search.draw_path_to(graph_img, end)
 
