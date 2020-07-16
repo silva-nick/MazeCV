@@ -4,8 +4,8 @@ import graph
 
 class bfs:
     def __init__(self, graph, start):
-        self.marked = [None]*graph.vertices()
-        self.edgeTo = [None]*graph.vertices()
+        self.marked = [None]*graph.V()
+        self.edgeTo = [None]*graph.V()
         self.start = start
         self.graph = graph
         queue = []

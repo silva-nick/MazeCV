@@ -64,12 +64,12 @@ def reverse_skeleton(image):
     return skeleton
 
 
+def neighbors(x, y, img):
+    l, r, t, b = x-1, x+1, y-1, y+1
+    return [img[t, x], img[t, r], img[y, r], img[b, r], img[b, x], img[b, l], img[y][l], img[t][l]]
+
+
 def zhang_suen(img):
-
-    def neighbors(x, y, img):
-        l, r, t, b = x-1, x+1, y-1, y+1
-        return [img[t, x], img[t, r], img[y, r], img[b, r], img[b, x], img[b, l], img[y][l], img[t][l]]
-
     def has_transitions(neighbors):
         n = neighbors + neighbors[0:1]
         tran = sum((a, b) == (255, 0) for a, b in zip(n, n[1:]))
