@@ -59,33 +59,33 @@ def make_graph(image):
 
 
 def find_edges(image, graph):
-    def neighbors(x, y):
+    def neighbors(x, y, color):
         l, r, t, b = x-1, x+1, y-1, y+1
         output = []
         (h, w) = image.shape
         if x > 0:
-            if image[y, l] == 0:
+            if image[y, l] == color:
                 output.append((y, l))
             if y > 0:
-                if image[t, l] == 0:
+                if image[t, l] == color:
                     output.append((t, l))
             if y < h-1:
-                if image[b, l] == 0:
+                if image[b, l] == color:
                     output.append((b, l))
         if x < w-1:
-            if image[y, r] == 0:
+            if image[y, r] == color:
                 output.append((y, r))
             if y > 0:
-                if image[t, r] == 0:
+                if image[t, r] == color:
                     output.append((t, r))
             if y < h-1:
-                if image[b, r] == 0:
+                if image[b, r] == color:
                     output.append((b, r),)
         if y > 0:
-            if image[t, x] == 0:
+            if image[t, x] == color:
                 output.append((t, x))
         if y < h-1:
-            if image[b, x] == 0:
+            if image[b, x] == color:
                 output.append((b, x))
         return output
 
@@ -105,7 +105,14 @@ def find_edges(image, graph):
     point_queue = [(start, start)]
     while len(point_queue) > 0:
         point, last_vertex = point_queue.pop(0)
-        nearby = neighbors(point[0], point[1])
+        nearby = neighbors(point[0], point[1], 0)
+        if len(nearby) == 0:
+            white_nearby = neighbors(point[0], point[1], 255)
+            for n in white_nearby:
+                v = (n[1], n[0])
+                if v in vertices:
+                    graph.add_edge_points(last_vertex, v)
+                image.itemset(n, 200)
         for n in nearby:
             v = (n[1], n[0])
             if v in vertices:
@@ -117,7 +124,7 @@ def find_edges(image, graph):
             v = (n[1], n[0])
             if v not in vertices:
                 point_queue.append((v, last_vertex))
-            image.itemset((n[0], n[1]), 200)
+            image.itemset(n, 200)
 
     cv2.imshow("path", image)
     return vertices.index(start), vertices.index(end)
@@ -128,7 +135,7 @@ if __name__ == "__main__":
     img1 = cv2.imread('mazes/color_maze.png', 0)
     img2 = cv2.imread('mazes/tc_maze.png', 0)
 
-    path, maze = process_image(img0)
+    path, maze = process_image(img2)
     maze = cv2.cvtColor(maze, cv2.COLOR_GRAY2RGB)
     graph = make_graph(path)
     color = cv2.cvtColor(path, cv2.COLOR_GRAY2RGB)
