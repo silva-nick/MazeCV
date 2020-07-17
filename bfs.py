@@ -4,27 +4,26 @@ import graph
 
 class bfs:
     def __init__(self, graph, start):
-        self.marked = [None]*graph.V()
-        self.edgeTo = [None]*graph.V()
+        self.marked = [False]*graph.V()
+        self.vertexTo = [None]*graph.V()
         self.start = start
         self.graph = graph
-        queue = []
-        queue.append(start)
+        queue = [start]
         self.marked[start] = True
-        while queue:
+        while len(queue) > 0:
             v = queue.pop(0)
             for w in graph.adj(v):
                 if not(self.marked[w]):
                     queue.append(w)
                     self.marked[w] = True
-                    self.edgeTo[w] = v
+                    self.vertexTo[w] = v
 
     def path_to(self, vertex):
         if not(self.marked[vertex]):
-            return None
+            raise ValueError('BFS cannot find a solution')
         path = [vertex]
-        while not(path[len(path)-1] == self.start):
-            path.insert(0, self.edgeTo[path[0]])
+        while not(path[0] == self.start):
+            path.insert(0, self.vertexTo[path[0]])
         return path
 
     def draw_path_to(self, img, end):
@@ -32,6 +31,6 @@ class bfs:
         for vertex in path:
             if not(vertex == self.start):
                 img = cv2.line(
-                    img, self.graph.vertices[self.edgeTo[vertex]], self.graph.vertices[vertex], (153, 192, 255), 2)
+                    img, self.graph.vertices[self.vertexTo[vertex]], self.graph.vertices[vertex], (240, 228, 93), 2)
 
         return img

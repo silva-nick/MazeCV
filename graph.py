@@ -39,8 +39,12 @@ class Graph:
             x, y = v
             img = cv2.circle(img, (x, y), radius=3,
                              color=(255, 245, 135), thickness=-1)
+        self.draw_edges(img)
+        return img
+
+    def draw_edges(self, img):
+        for v in self.vertices:
             for a in self.adj(self.vertices.index(v)):
                 if a:
-                    img = cv2.line(img, a, v, (153, 192, 255), 2)
-
-        return img
+                    img = cv2.line(
+                        img, self.vertices[a], v, (140, 245, 42), 1)
