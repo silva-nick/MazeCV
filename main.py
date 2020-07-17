@@ -109,7 +109,7 @@ def find_edges(image, graph):
         for n in nearby:
             v = (n[1], n[0])
             if v in vertices:
-                print((point, last_vertex))
+                #print((point, last_vertex))
                 graph.add_edge_points(last_vertex, v)
                 last_vertex = v
                 point_queue.append((v, last_vertex))
@@ -124,11 +124,11 @@ def find_edges(image, graph):
 
 
 if __name__ == "__main__":
-    img0 = cv2.imread('maze.png', 0)
-    img1 = cv2.imread('color_maze.png', 0)
-    img2 = cv2.imread('tc_maze.png', 0)
+    img0 = cv2.imread('mazes/maze.png', 0)
+    img1 = cv2.imread('mazes/color_maze.png', 0)
+    img2 = cv2.imread('mazes/tc_maze.png', 0)
 
-    path, maze = process_image(img2)
+    path, maze = process_image(img0)
     maze = cv2.cvtColor(maze, cv2.COLOR_GRAY2RGB)
     graph = make_graph(path)
     color = cv2.cvtColor(path, cv2.COLOR_GRAY2RGB)
@@ -143,7 +143,8 @@ if __name__ == "__main__":
     cv2.imshow("graph", graph_img)
 
     search = bfs.bfs(graph, start)
-    #final_maze = search.draw_path_to(maze, end)
-    #cv2.imshow("solved maze", final_maze)
+    final_maze = search.draw_path_to(maze, end)
+    cv2.imshow("solved maze", final_maze)
+    cv2.imwrite("./solved/solved.jpg", final_maze)
 
     cv2.waitKey(0)
