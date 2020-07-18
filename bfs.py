@@ -20,7 +20,8 @@ class bfs:
 
     def path_to(self, vertex):
         if not(self.marked[vertex]):
-            raise ValueError('BFS cannot find a solution')
+            raise ValueError(
+                'BFS cannot find a solution. Make sure the image is correct.')
         path = [vertex]
         while not(path[0] == self.start):
             path.insert(0, self.vertexTo[path[0]])

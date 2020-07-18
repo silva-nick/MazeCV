@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import argparse
 
 import skeletonize as sk
 import graph
@@ -50,6 +51,7 @@ def process_image(image):
     maze = image.copy()
     (h, w) = maze.shape
     if background_color(maze) == 0:
+        print("changing background color")
         maze = cv2.bitwise_not(maze)
     t, threshold = cv2.threshold(maze, 225, 255, cv2.THRESH_BINARY)
     #cv2.imshow("threshold", threshold)
@@ -159,11 +161,17 @@ def find_edges(image, graph):
 
 
 if __name__ == "__main__":
-    img0 = cv2.imread('mazes/maze.png', 0)
-    img1 = cv2.imread('mazes/color_maze.png', 0)
-    img2 = cv2.imread('mazes/tc_maze.png', 0)
+    parser = argparse.ArgumentParser(
+        description='Maze solver using computer vision')
+    parser.add_argument("-i", action="store",
+                        dest="image_name", help="name of the image")
+    parser.add_argument("-s", action="store", dest="search_algo",
+                        help="name of search algorithm: bfs...")
+    cmd_in = parser.parse_args()
 
-    path, maze = process_image(img1)
+    image = cv2.imread('mazes/{}'.format(cmd_in.image_name), 0)
+
+    path, maze = process_image(image)
     maze = cv2.cvtColor(maze, cv2.COLOR_GRAY2RGB)
     graph = make_graph(path)
     color = cv2.cvtColor(path, cv2.COLOR_GRAY2RGB)
@@ -178,6 +186,7 @@ if __name__ == "__main__":
     cv2.imshow("graph", graph_img)
 
     search = bfs.bfs(graph, start)
+
     final_maze = search.draw_path_to(maze, end)
     cv2.imshow("solved maze", final_maze)
     cv2.imwrite("./solved/solved.jpg", final_maze)
