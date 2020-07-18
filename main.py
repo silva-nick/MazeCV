@@ -53,10 +53,12 @@ def process_image(image):
     if background_color(maze) == 0:
         print("changing background color")
         maze = cv2.bitwise_not(maze)
-    t, threshold = cv2.threshold(maze, 225, 255, cv2.THRESH_BINARY)
+    t, threshold = cv2.threshold(maze, 210, 255, cv2.THRESH_BINARY)
     #cv2.imshow("threshold", threshold)
 
-    cropped = crop(threshold.copy())
+    morphed = cv2.morphologyEx(threshold, cv2.MORPH_OPEN, (1, 1))
+
+    cropped = crop(morphed.copy())
 
     path = maze_path(cropped.copy())
     #cv2.imshow("path", path)
@@ -127,17 +129,16 @@ def find_edges(image, graph):
     while len(point_queue) > 0:
         point, last_vertex = point_queue.pop(0)
         nearby = neighbors(point[0], point[1], 0)
-        if len(nearby) < 9:
-            white_nearby = neighbors(point[0], point[1], 255)
-            for n in white_nearby:
-                v = (n[1], n[0])
-                if v in vertices:
-                    graph.add_edge_points(last_vertex, v)
-                    last_vertex = v
-                    point_queue.append((v, last_vertex))
-                    image.itemset(n, 10)
-                else:
-                    image.itemset(n, 200)
+
+        white_nearby = neighbors(point[0], point[1], 255)
+        for n in white_nearby:
+            v = (n[1], n[0])
+            if v in vertices:
+                graph.add_edge_points(last_vertex, v)
+                last_vertex = v
+                image.itemset(n, 10)
+            else:
+                image.itemset(n, 200)
 
         for n in nearby:
             v = (n[1], n[0])
@@ -189,6 +190,7 @@ if __name__ == "__main__":
 
     final_maze = search.draw_path_to(maze, end)
     cv2.imshow("solved maze", final_maze)
-    cv2.imwrite("./solved/solved.jpg", final_maze)
+    cv2.imwrite(
+        "./solved/{}_solved.jpg".format(cmd_in.image_name.split(".")[0]), final_maze)
 
     cv2.waitKey(0)
