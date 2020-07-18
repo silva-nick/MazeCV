@@ -21,6 +21,23 @@ def morph(image):
     return last
 
 
+def crop(image):
+    (h, w) = image.shape
+    while cv2.countNonZero(image[0]) == w:
+        image = np.delete(image, (0), axis=0)
+        h += -1
+    while cv2.countNonZero(image[h-1]) == w:
+        image = np.delete(image, (h-1), axis=0)
+        h += -1
+    while cv2.countNonZero(image[:, 0]) == h:
+        image = np.delete(image, (0), axis=1)
+        w += -1
+    while cv2.countNonZero(image[:, w-1]) == h:
+        image = np.delete(image, (w-1), axis=1)
+        w += -1
+    return image
+
+
 def maze_path(image):
     morphed = morph(image)
     morphed_flipped = cv2.bitwise_not(morphed)
@@ -37,10 +54,12 @@ def process_image(image):
     t, threshold = cv2.threshold(maze, 225, 255, cv2.THRESH_BINARY)
     #cv2.imshow("threshold", threshold)
 
-    path = maze_path(threshold.copy())
+    cropped = crop(threshold.copy())
+
+    path = maze_path(cropped.copy())
     #cv2.imshow("path", path)
 
-    skel = sk.zhang_suen(threshold)
+    skel = sk.zhang_suen(cropped)
     #skel = sk.skeletonize(path)
     #cv2.imshow("skeletonized", skel)
     return path, skel
@@ -106,13 +125,18 @@ def find_edges(image, graph):
     while len(point_queue) > 0:
         point, last_vertex = point_queue.pop(0)
         nearby = neighbors(point[0], point[1], 0)
-        if len(nearby) == 0:
+        if len(nearby) < 9:
             white_nearby = neighbors(point[0], point[1], 255)
             for n in white_nearby:
                 v = (n[1], n[0])
                 if v in vertices:
                     graph.add_edge_points(last_vertex, v)
-                image.itemset(n, 200)
+                    last_vertex = v
+                    point_queue.append((v, last_vertex))
+                    image.itemset(n, 10)
+                else:
+                    image.itemset(n, 200)
+
         for n in nearby:
             v = (n[1], n[0])
             if v in vertices:
@@ -120,11 +144,15 @@ def find_edges(image, graph):
                 graph.add_edge_points(last_vertex, v)
                 last_vertex = v
                 point_queue.append((v, last_vertex))
+                if(130 <= v[0] <= 199 and v[1] > 100):
+                    True == True
+                    #cv2.imshow("path"+str(v), image)
+                image.itemset(n, 10)
         for n in nearby:
             v = (n[1], n[0])
             if v not in vertices:
                 point_queue.append((v, last_vertex))
-            image.itemset(n, 200)
+                image.itemset(n, 200)
 
     cv2.imshow("path", image)
     return vertices.index(start), vertices.index(end)
@@ -135,7 +163,7 @@ if __name__ == "__main__":
     img1 = cv2.imread('mazes/color_maze.png', 0)
     img2 = cv2.imread('mazes/tc_maze.png', 0)
 
-    path, maze = process_image(img2)
+    path, maze = process_image(img1)
     maze = cv2.cvtColor(maze, cv2.COLOR_GRAY2RGB)
     graph = make_graph(path)
     color = cv2.cvtColor(path, cv2.COLOR_GRAY2RGB)
