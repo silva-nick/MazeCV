@@ -5,6 +5,7 @@ import argparse
 import skeletonize as sk
 import graph
 import bfs
+import kdtree
 
 
 def background_color(image):
@@ -74,11 +75,13 @@ def make_graph(image):
     term = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_COUNT, 30, 0.1)
     cv2.cornerSubPix(image, corners, (5, 5), (-1, -1), term)
     g = graph.Graph()
+    t = kdtree()
     for vertex in corners:
-        g.add_vertex(int(round(vertex[0][0])), int(round(vertex[0][1])))
-    return g
+        v = int(round(vertex[0][0])), int(round(vertex[0][1]))
+        g.add_vertex(v)
+        t.insert(v)
 
-# image must be a path
+    return g
 
 
 def find_edges(image, graph):
