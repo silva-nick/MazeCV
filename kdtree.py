@@ -1,4 +1,4 @@
-class Kdtree:
+class KDtree:
 
     def __init__(self):
         self.root = None
@@ -59,10 +59,10 @@ class Kdtree:
         if self.is_empty():
             return None
         in_range = []
-        self.find_h_points(rect, self.root, in_range)
+        self.h_find_points(rect, self.root, in_range)
         return in_range
 
-    def find_h_points(self, rect, node, q):
+    def h_find_points(self, rect, node, q):
         if self.rect_contains(rect, node.point):
             q.append(node.point)
         if node.ln != None and rect[0] <= node.point[0]:
@@ -70,7 +70,7 @@ class Kdtree:
         if node.rn != None and rect[2] >= node.point[0]:
             self.v_find_points(rect, node.rn, q)
 
-    def find_v_points(self, rect, node, q):
+    def v_find_points(self, rect, node, q):
         if self.rect_contains(rect, node.point):
             q.append(node.point)
         if node.ln != None and rect[1] <= node.point[1]:

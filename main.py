@@ -43,7 +43,7 @@ def crop(image):
 def maze_path(image):
     morphed = morph(image)
     morphed_flipped = cv2.bitwise_not(morphed)
-    #cv2.imshow("morphed", morphed_flipped)
+    # cv2.imshow("morphed", morphed_flipped)
     skel = sk.zhang_suen(morphed_flipped)
     return skel
 
@@ -55,18 +55,18 @@ def process_image(image):
         print("changing background color")
         maze = cv2.bitwise_not(maze)
     t, threshold = cv2.threshold(maze, 210, 255, cv2.THRESH_BINARY)
-    #cv2.imshow("threshold", threshold)
+    # cv2.imshow("threshold", threshold)
 
     morphed = cv2.morphologyEx(threshold, cv2.MORPH_OPEN, (1, 1))
 
     cropped = crop(morphed.copy())
 
     path = maze_path(cropped.copy())
-    #cv2.imshow("path", path)
+    # cv2.imshow("path", path)
 
     skel = sk.zhang_suen(cropped)
-    #skel = sk.skeletonize(path)
-    #cv2.imshow("skeletonized", skel)
+    # skel = sk.skeletonize(path)
+    # cv2.imshow("skeletonized", skel)
     return path, skel
 
 
@@ -75,13 +75,82 @@ def make_graph(image):
     term = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_COUNT, 30, 0.1)
     cv2.cornerSubPix(image, corners, (5, 5), (-1, -1), term)
     g = graph.Graph()
-    t = kdtree()
+    t = kdtree.KDtree()
     for vertex in corners:
         v = int(round(vertex[0][0])), int(round(vertex[0][1]))
-        g.add_vertex(v)
+        g.add_vertex(v[0], v[1])
         t.insert(v)
 
-    return g
+    return g, t
+
+
+def find_edges_kd(image, graph, tree):
+    def neighbors(x, y):
+        l, r, t, b = x-1, x+1, y-1, y+1
+        output = []
+        (h, w) = image.shape
+        if x > 0:
+            if image[y, l] == 0:
+                output.append((y, l))
+            if y > 0:
+                if image[t, l] == 0:
+                    output.append((t, l))
+            if y < h-1:
+                if image[b, l] == 0:
+                    output.append((b, l))
+        if x < w-1:
+            if image[y, r] == 0:
+                output.append((y, r))
+            if y > 0:
+                if image[t, r] == 0:
+                    output.append((t, r))
+            if y < h-1:
+                if image[b, r] == 0:
+                    output.append((b, r),)
+        if y > 0:
+            if image[t, x] == 0:
+                output.append((t, x))
+        if y < h-1:
+            if image[b, x] == 0:
+                output.append((b, x))
+        return output
+
+    vertices = graph.vertices
+    (h, w) = image.shape
+
+    start_min = max(w, h)
+    end_max = 0
+    start = end = None
+    for vertex in vertices:
+        if vertex[0] < start_min or vertex[1] < start_min:
+            start_min = min(vertex[0], vertex[1])
+            start = vertex
+        elif vertex[0] > end_max or vertex[1] > end_max:
+            end_max = max(vertex[0], vertex[1])
+            end = vertex
+
+    point_queue = [(start, start)]
+    counter = 0
+    while len(point_queue) > 0:
+        point, last_vertex = point_queue.pop(0)
+        nearby = neighbors(point[0], point[1])
+        counter += 1
+
+        for n in nearby:
+            v = (n[1], n[0])
+            if tree.range((v[0]-5, v[1]-5, v[0]+5, v[1]+5)):
+                nearby.remove(n)
+                graph.add_edge_points(last_vertex, v)
+                last_vertex = v
+                point_queue.append((v, last_vertex))
+                image.itemset(n, 10)
+        for n in nearby:
+            v = (n[1], n[0])
+            point_queue.append((v, last_vertex))
+            image.itemset(n, 200)
+
+    cv2.imshow("path", image)
+    return vertices.index(start), vertices.index(end)
 
 
 def find_edges(image, graph):
@@ -146,13 +215,13 @@ def find_edges(image, graph):
         for n in nearby:
             v = (n[1], n[0])
             if v in vertices:
-                #print((point, last_vertex))
+                # print((point, last_vertex))
                 graph.add_edge_points(last_vertex, v)
                 last_vertex = v
                 point_queue.append((v, last_vertex))
                 if(130 <= v[0] <= 199 and v[1] > 100):
                     True == True
-                    #cv2.imshow("path"+str(v), image)
+                    # cv2.imshow("path"+str(v), image)
                 image.itemset(n, 10)
         for n in nearby:
             v = (n[1], n[0])
@@ -173,13 +242,15 @@ if __name__ == "__main__":
                         help="name of search algorithm: bfs...")
     cmd_in = parser.parse_args()
 
-    image = cv2.imread('mazes/{}'.format(cmd_in.image_name), 0)
+    # image = cv2.imread('mazes/{}'.format(cmd_in.image_name), 0)
+    image = cv2.imread('mazes/maze.png', 0)
 
     path, maze = process_image(image)
     maze = cv2.cvtColor(maze, cv2.COLOR_GRAY2RGB)
-    graph = make_graph(path)
+    graph, tree = make_graph(path)
     color = cv2.cvtColor(path, cv2.COLOR_GRAY2RGB)
-    start, end = find_edges(path, graph)
+    # start, end = find_edges(path, graph)
+    start, end = find_edges_kd(path, graph, tree)
     graph_img = graph.draw_graph(color)
 
     graph_img = cv2.circle(graph_img, (graph.vertices[start][0], graph.vertices[start][1]), radius=3,
@@ -193,7 +264,6 @@ if __name__ == "__main__":
 
     final_maze = search.draw_path_to(maze, end)
     cv2.imshow("solved maze", final_maze)
-    cv2.imwrite(
-        "./solved/{}_solved.jpg".format(cmd_in.image_name.split(".")[0]), final_maze)
+    # cv2.imwrite("./solved/{}_solved.jpg".format(cmd_in.image_name.split(".")[0]), final_maze)
 
     cv2.waitKey(0)
