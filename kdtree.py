@@ -1,5 +1,6 @@
-class KDtree:
+import cv2
 
+class KDtree:
     def __init__(self):
         self.root = None
         self.n = 0
@@ -88,6 +89,14 @@ class KDtree:
         if p[1] > rect[3]:
             return False
         return True
+
+    def draw(self, image):
+        (h, w, d) = image.shape
+        points = self.range((0, 0, w, h))
+        for p in points:
+            image = cv2.circle(image, p, radius=1,
+                               color=(255, 245, 135), thickness=-1)
+        return image
 
     class Node:
         def __init__(self, point):

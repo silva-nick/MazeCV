@@ -38,7 +38,7 @@ class Graph:
         for v in self.vertices:
             x, y = v
             img = cv2.circle(img, (x, y), radius=3,
-                             color=(255, 245, 135), thickness=-1)
+                             color=(224, 55, 29), thickness=-1)
         self.draw_edges(img)
         return img
 

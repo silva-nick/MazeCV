@@ -138,12 +138,13 @@ def find_edges_kd(image, graph, tree):
 
         for n in nearby:
             v = (n[1], n[0])
-            if tree.range((v[0]-5, v[1]-5, v[0]+5, v[1]+5)):
-                nearby.remove(n)
-                graph.add_edge_points(last_vertex, v)
-                last_vertex = v
-                point_queue.append((v, last_vertex))
-                image.itemset(n, 10)
+            for x in tree.range((v[0]-1, v[1]-1, v[0]+1, v[1]+1)):
+                # nearby.remove(n)
+                graph.add_edge_points(last_vertex, x)
+                last_vertex = x
+                point_queue.append((x, last_vertex))
+                image.itemset(x, 10)
+
         for n in nearby:
             v = (n[1], n[0])
             point_queue.append((v, last_vertex))
@@ -219,9 +220,6 @@ def find_edges(image, graph):
                 graph.add_edge_points(last_vertex, v)
                 last_vertex = v
                 point_queue.append((v, last_vertex))
-                if(130 <= v[0] <= 199 and v[1] > 100):
-                    True == True
-                    # cv2.imshow("path"+str(v), image)
                 image.itemset(n, 10)
         for n in nearby:
             v = (n[1], n[0])
@@ -243,7 +241,7 @@ if __name__ == "__main__":
     cmd_in = parser.parse_args()
 
     # image = cv2.imread('mazes/{}'.format(cmd_in.image_name), 0)
-    image = cv2.imread('mazes/maze.png', 0)
+    image = cv2.imread('mazes/big_maze.png', 0)
 
     path, maze = process_image(image)
     maze = cv2.cvtColor(maze, cv2.COLOR_GRAY2RGB)
@@ -258,7 +256,7 @@ if __name__ == "__main__":
     graph_img = cv2.circle(graph_img, (graph.vertices[end][0], graph.vertices[end][1]), radius=3,
                            color=(252, 71, 71), thickness=-1)
 
-    cv2.imshow("graph", graph_img)
+    #cv2.imshow("graph", tree.draw(graph_img))
 
     search = bfs.bfs(graph, start)
 
