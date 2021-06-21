@@ -1,4 +1,4 @@
-Uses OpenCV to solve mazes from pictures using BFS
+Uses OpenCV to solve mazes from pictures using graph search algorithms
 
 Basic layout:\
 -main: takes image input and creates a graph and prints\
