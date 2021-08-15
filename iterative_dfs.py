@@ -1,21 +1,31 @@
 import cv2
 import graph
 
-class bfs:
-    def __init__(self, graph, start):
+class iddfs:
+    def __init__(self, graph, start, target):
         self.marked = [False]*graph.V()
         self.vertexTo = [None]*graph.V()
         self.start = start
         self.graph = graph
-        queue = [start]
-        self.marked[start] = True
-        while len(queue) > 0:
-            v = queue.pop(0)
-            for w in graph.adj(v):
-                if not(self.marked[w]):
-                    queue.append(w)
-                    self.marked[w] = True
-                    self.vertexTo[w] = v
+        found = False
+        depth = 0
+        while not found and depth < 1000: # cutoff depth for unsolvable mazes
+            if self.dfs(target, depth):
+                return True
+            depth += 1
+        return False
+
+    def dfs(self, root, target, depth):
+        if root is target:
+            return True
+        if depth <= 0:
+            return False
+        for w in graph.adj(root):
+            if not(self.marked[w]):
+                self.marked[w] = True
+                self.vertexTo[w] = root
+                if self.dfs(w, target, depth-1):
+                    return True
 
     def path_to(self, vertex):
         if not(self.marked[vertex]):

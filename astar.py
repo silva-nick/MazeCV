@@ -1,7 +1,6 @@
 import cv2
 import graph
 
-
 class astar:
     def __init__(self, graph, start):
         self.marked = [False]*graph.V()
